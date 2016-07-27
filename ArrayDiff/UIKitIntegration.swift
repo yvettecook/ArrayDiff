@@ -14,13 +14,13 @@ public extension ArrayDiff {
 
 	This should be called on the main thread inside collectionView.performBatchUpdates
 	*/
-	public func applyToItemsInCollectionView(collectionView: UICollectionView, section: Int) {
-		assert(NSThread.isMainThread())
+	public func applyToItemsInCollectionView(_ collectionView: UICollectionView, section: Int) {
+		assert(Thread.isMainThread)
 		// Apply updates in safe order for good measure.
 		// Deletes, descending
 		// Inserts, ascending
-		collectionView.deleteItemsAtIndexPaths(removedIndexes.indexPathsInSection(section, ascending: false))
-		collectionView.insertItemsAtIndexPaths(insertedIndexes.indexPathsInSection(section))
+		collectionView.deleteItems(at: removedIndexes.indexPathsInSection(section, ascending: false))
+		collectionView.insertItems(at: insertedIndexes.indexPathsInSection(section))
 	}
 
 	/**
@@ -28,13 +28,13 @@ public extension ArrayDiff {
 
 	This should be called on the main thread between tableView.beginUpdates and tableView.endUpdates
 	*/
-	public func applyToRowsInTableView(tableView: UITableView, section: Int, rowAnimation: UITableViewRowAnimation) {
-		assert(NSThread.isMainThread())
+	public func applyToRowsInTableView(_ tableView: UITableView, section: Int, rowAnimation: UITableViewRowAnimation) {
+		assert(Thread.isMainThread)
 		// Apply updates in safe order for good measure.
 		// Deletes, descending
 		// Inserts, ascending
-		tableView.deleteRowsAtIndexPaths(removedIndexes.indexPathsInSection(section, ascending: false), withRowAnimation: rowAnimation)
-		tableView.insertRowsAtIndexPaths(insertedIndexes.indexPathsInSection(section), withRowAnimation: rowAnimation)
+		tableView.deleteRows(at: removedIndexes.indexPathsInSection(section, ascending: false), with: rowAnimation)
+		tableView.insertRows(at: insertedIndexes.indexPathsInSection(section), with: rowAnimation)
 	}
 
 	/**
@@ -42,16 +42,16 @@ public extension ArrayDiff {
 
 	This should be called on the main thread between tableView.beginUpdates and tableView.endUpdates
 	*/
-	public func applyToSectionsInTableView(tableView: UITableView, rowAnimation: UITableViewRowAnimation) {
-		assert(NSThread.isMainThread())
+	public func applyToSectionsInTableView(_ tableView: UITableView, rowAnimation: UITableViewRowAnimation) {
+		assert(Thread.isMainThread)
 		// Apply updates in safe order for good measure.
 		// Deletes, descending
 		// Inserts, ascending
 		if removedIndexes.count > 0 {
-			tableView.deleteSections(removedIndexes, withRowAnimation: rowAnimation)
+			tableView.deleteSections(removedIndexes as IndexSet, with: rowAnimation)
 		}
 		if insertedIndexes.count > 0 {
-			tableView.insertSections(insertedIndexes, withRowAnimation: rowAnimation)
+			tableView.insertSections(insertedIndexes as IndexSet, with: rowAnimation)
 		}
 	}
 
@@ -60,16 +60,16 @@ public extension ArrayDiff {
 
 	This should be called on the main thread inside collectionView.performBatchUpdates
 	*/
-	public func applyToSectionsInCollectionView(collectionView: UICollectionView) {
-		assert(NSThread.isMainThread())
+	public func applyToSectionsInCollectionView(_ collectionView: UICollectionView) {
+		assert(Thread.isMainThread)
 		// Apply updates in safe order for good measure.
 		// Deletes, descending
 		// Inserts, ascending
 		if removedIndexes.count > 0 {
-			collectionView.deleteSections(removedIndexes)
+			collectionView.deleteSections(removedIndexes as IndexSet)
 		}
 		if insertedIndexes.count > 0 {
-			collectionView.insertSections(insertedIndexes)
+			collectionView.insertSections(insertedIndexes as IndexSet)
 		}
 	}
 }
@@ -80,23 +80,23 @@ public extension NestedDiff {
 	
 	This should be called on the main thread between tableView.beginUpdates and tableView.endUpdates
 	*/
-	public func applyToTableView(tableView: UITableView, rowAnimation: UITableViewRowAnimation) {
-		assert(NSThread.isMainThread())
+	public func applyToTableView(_ tableView: UITableView, rowAnimation: UITableViewRowAnimation) {
+		assert(Thread.isMainThread)
 		// Apply updates in safe order for good measure.
 		// Item deletes, descending
 		// Section deletes
 		// Section inserts
 		// Item inserts, ascending
-		for (oldSection, diffOrNil) in itemDiffs.enumerate() {
+		for (oldSection, diffOrNil) in itemDiffs.enumerated() {
 			if let diff = diffOrNil {
-				tableView.deleteRowsAtIndexPaths(diff.removedIndexes.indexPathsInSection(oldSection, ascending: false), withRowAnimation: rowAnimation)
+				tableView.deleteRows(at: diff.removedIndexes.indexPathsInSection(oldSection, ascending: false), with: rowAnimation)
 			}
 		}
 		sectionsDiff.applyToSectionsInTableView(tableView, rowAnimation: rowAnimation)
-		for (oldSection, diffOrNil) in itemDiffs.enumerate() {
+		for (oldSection, diffOrNil) in itemDiffs.enumerated() {
 			if let diff = diffOrNil {
 				if let newSection = sectionsDiff.newIndexForOldIndex(oldSection) {
-					tableView.insertRowsAtIndexPaths(diff.insertedIndexes.indexPathsInSection(newSection), withRowAnimation: rowAnimation)
+					tableView.insertRows(at: diff.insertedIndexes.indexPathsInSection(newSection), with: rowAnimation)
 				} else {
 					assertionFailure("Found an item diff for a section that was removed. Wat.")
 				}
@@ -109,23 +109,23 @@ public extension NestedDiff {
 	
 	This should be called on the main thread inside collectionView.performBatchUpdates
 	*/
-	public func applyToCollectionView(collectionView: UICollectionView) {
-		assert(NSThread.isMainThread())
+	public func applyToCollectionView(_ collectionView: UICollectionView) {
+		assert(Thread.isMainThread)
 		// Apply updates in safe order for good measure. 
 		// Item deletes, descending
 		// Section deletes
 		// Section inserts
 		// Item inserts, ascending
-		for (oldSection, diffOrNil) in itemDiffs.enumerate() {
+		for (oldSection, diffOrNil) in itemDiffs.enumerated() {
 			if let diff = diffOrNil {
-				collectionView.deleteItemsAtIndexPaths(diff.removedIndexes.indexPathsInSection(oldSection, ascending: false))
+				collectionView.deleteItems(at: diff.removedIndexes.indexPathsInSection(oldSection, ascending: false))
 			}
 		}
 		sectionsDiff.applyToSectionsInCollectionView(collectionView)
-		for (oldSection, diffOrNil) in itemDiffs.enumerate() {
+		for (oldSection, diffOrNil) in itemDiffs.enumerated() {
 			if let diff = diffOrNil {
 				if let newSection = sectionsDiff.newIndexForOldIndex(oldSection) {
-					collectionView.insertItemsAtIndexPaths(diff.insertedIndexes.indexPathsInSection(newSection))
+					collectionView.insertItems(at: diff.insertedIndexes.indexPathsInSection(newSection))
 				} else {
 					assertionFailure("Found an item diff for a section that was removed. Wat.")
 				}

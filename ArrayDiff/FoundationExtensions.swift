@@ -4,30 +4,30 @@ import Foundation
 // MARK: NSRange <-> Range<Int> conversion
 
 public extension NSRange {
-	public var range: Range<Int> {
+	public var range: CountableRange<Int> {
 		return location..<location+length
 	}
 	
 	public init(range: Range<Int>) {
-		location = range.startIndex
-		length = range.endIndex - range.startIndex
+		location = range.lowerBound
+		length = range.upperBound - range.lowerBound
 	}
 }
 
 // MARK: NSIndexSet -> [NSIndexPath] conversion
 
-public extension NSIndexSet {
+public extension IndexSet {
 	/**
 	Returns an array of NSIndexPaths that correspond to these indexes in the given section.
 	
 	When reporting changes to table/collection view, you can improve performance by sorting
 	deletes in descending order and inserts in ascending order.
 	*/
-	public func indexPathsInSection(section: Int, ascending: Bool = true) -> [NSIndexPath] {
-		var result: [NSIndexPath] = []
+	public func indexPathsInSection(_ section: Int, ascending: Bool = true) -> [IndexPath] {
+		var result: [IndexPath] = []
 		result.reserveCapacity(count)
-		enumerateIndexesWithOptions(ascending ? [] : .Reverse) { index, _ in
-			result.append(NSIndexPath(indexes: [section, index], length: 2))
+		enumerate(options: ascending ? [] : .reverse) { index, _ in
+			result.append(NSIndexPath(indexes: [section, index], length: 2) as IndexPath)
 		}
 		return result
 	}
@@ -37,26 +37,26 @@ public extension NSIndexSet {
 
 public extension Array {
 	
-	public subscript (indexes: NSIndexSet) -> [Element] {
+	public subscript (indexes: IndexSet) -> [Element] {
 		var result: [Element] = []
 		result.reserveCapacity(indexes.count)
-		indexes.enumerateRangesUsingBlock { nsRange, _ in
+		(indexes as NSIndexSet).enumerateRanges { nsRange, _ in
 			result += self[nsRange.range]
 		}
 		return result
 	}
 	
-	public mutating func removeAtIndexes(indexSet: NSIndexSet) {
-		indexSet.enumerateRangesWithOptions(.Reverse) { nsRange, _ in
-			self.removeRange(nsRange.range)
+	public mutating func removeAtIndexes(_ indexSet: IndexSet) {
+		(indexSet as NSIndexSet).enumerateRanges(options: .reverse) { nsRange, _ in
+			self.removeSubrange(nsRange.range)
 		}
 	}
 	
-	public mutating func insertElements(newElements: [Element], atIndexes indexes: NSIndexSet) {
+	public mutating func insertElements(_ newElements: [Element], atIndexes indexes: IndexSet) {
 		assert(indexes.count == newElements.count)
 		var i = 0
-		indexes.enumerateRangesUsingBlock { range, _ in
-			self.insertContentsOf(newElements[i..<i+range.length], at: range.location)
+		(indexes as NSIndexSet).enumerateRanges { range, _ in
+			self.insert(contentsOf: newElements[i..<i+range.length], at: range.location)
 			i += range.length
 		}
 	}
