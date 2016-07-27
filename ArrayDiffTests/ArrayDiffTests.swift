@@ -17,12 +17,12 @@ class ArrayDiffTests: XCTestCase {
 		
 		let allFirstIndexes = IndexSet(integersIn: NSMakeRange(0, old.count).toRange()!)
 		
-		let expectedRemoves = NSMutableIndexSet()
-		expectedRemoves.add(in: NSMakeRange(2, 3))
+		var expectedRemoves = IndexSet()
+		expectedRemoves.add(in: 2..<2+3)
 
-		let expectedInserts = NSMutableIndexSet()
-		expectedInserts.add(0)
-		expectedInserts.add(3)
+		var expectedInserts = IndexSet()
+		expectedInserts.insert(0)
+		expectedInserts.insert(3)
 		
 
 		let expectedCommonObjects = "a b".components(separatedBy: " ")
@@ -33,7 +33,7 @@ class ArrayDiffTests: XCTestCase {
 		XCTAssertEqual(expectedRemoves, diff.removedIndexes)
 		XCTAssertEqual(expectedCommonObjects, old[diff.commonIndexes])
 		
-		let removedPlusCommon = NSMutableIndexSet(indexSet: diff.removedIndexes)
+		var removedPlusCommon = IndexSet(indexSet: diff.removedIndexes)
 		removedPlusCommon.addIndexes(diff.commonIndexes)
 		XCTAssertEqual(removedPlusCommon, allFirstIndexes)
 		

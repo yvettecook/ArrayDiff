@@ -69,16 +69,16 @@ public extension Array {
 				} else if elementsAreEqual(self[i], other[j]) {
 					lengths[i][j] = 1 + lengths[i+1][j+1]
 				} else {
-					lengths[i][j] = max(lengths[i+1][j], lengths[i][j+1])
+					lengths[i][j] = Swift.max(lengths[i+1][j], lengths[i][j+1])
 				}
 			}
 		}
-		let commonIndexes = NSMutableIndexSet()
+		var commonIndexes = IndexSet()
 		var i = 0, j = 0
 
 		while i < count && j < other.count {
 			if elementsAreEqual(self[i], other[j]) {
-				commonIndexes.add(i)
+				commonIndexes.insert(i)
 				i += 1
 				j += 1
 			} else if lengths[i+1][j] >= lengths[i][j+1] {
@@ -87,12 +87,14 @@ public extension Array {
 				j += 1
 			}
 		}
-		
-		let removedIndexes = NSMutableIndexSet(integersIn: NSMakeRange(0, count).toRange()!)
-		removedIndexes.remove(commonIndexes)
+    
+    var removedIndexes = IndexSet(integersIn: 0..<count)
+    commonIndexes.forEach {
+      removedIndexes.remove($0)
+    }
 		
 		let commonObjects = self[commonIndexes]
-		let addedIndexes = NSMutableIndexSet()
+		var addedIndexes = IndexSet()
 		i = 0
 		j = 0
 		
@@ -101,7 +103,7 @@ public extension Array {
 				i += 1
 				j += 1
 			} else {
-				addedIndexes.add(j)
+				addedIndexes.insert(j)
 				j += 1
 			}
 		}

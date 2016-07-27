@@ -24,11 +24,11 @@ public extension Array where Element: SectionType {
 	Attempt to retrieve the item at the given index path. Returns nil if the index is out of bounds.
 	*/
 	public subscript (indexPath: IndexPath) -> Element.Item? {
-		let sectionIndex = indexPath.index(atPosition: 0)
+    let sectionIndex = indexPath[0]
 		guard indices.contains(sectionIndex) else { return nil }
 		
 		let section = self[sectionIndex]
-		let itemIndex = indexPath.index(atPosition: 1)
+		let itemIndex = indexPath[1]
 		guard section.items.indices.contains(itemIndex) else { return nil }
 		
 		return section.items[itemIndex]
@@ -61,9 +61,9 @@ public struct NestedDiff {
 	- Returns: The index path after the update, or nil if the item was removed
 	*/
 	public func newIndexPathForOldIndexPath(_ indexPath: IndexPath) -> IndexPath? {
-		let oldSection = indexPath.index(atPosition: 0)
+		let oldSection = indexPath[0]
 		if let newSection = sectionsDiff.newIndexForOldIndex(oldSection),
-		newItem = itemDiffs[oldSection]?.newIndexForOldIndex(indexPath.index(atPosition: 1)) {
+		   let newItem = itemDiffs[oldSection]?.newIndexForOldIndex(indexPath[1]) {
 			return (NSIndexPath(indexes: [newSection, newItem], length: 2) as IndexPath)
 		} else {
 			return nil
@@ -75,8 +75,8 @@ public struct NestedDiff {
 	- Returns: The index path before the update, or nil if the item was inserted
 	*/
 	public func oldIndexPathForNewIndexPath(_ newIndexPath: IndexPath) -> IndexPath? {
-		if let oldSection = sectionsDiff.oldIndexForNewIndex(newIndexPath.index(atPosition: 0)),
-		oldItem = itemDiffs[oldSection]?.oldIndexForNewIndex(newIndexPath.index(atPosition: 1)) {
+		if let oldSection = sectionsDiff.oldIndexForNewIndex(newIndexPath[0]),
+		   let oldItem = itemDiffs[oldSection]?.oldIndexForNewIndex(newIndexPath[1]) {
 			return (NSIndexPath(indexes: [oldSection, oldItem], length: 2) as IndexPath)
 		} else {
 			return nil

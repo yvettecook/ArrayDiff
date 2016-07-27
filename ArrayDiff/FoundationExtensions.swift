@@ -26,9 +26,16 @@ public extension IndexSet {
 	public func indexPathsInSection(_ section: Int, ascending: Bool = true) -> [IndexPath] {
 		var result: [IndexPath] = []
 		result.reserveCapacity(count)
-		enumerate(options: ascending ? [] : .reverse) { index, _ in
-			result.append(NSIndexPath(indexes: [section, index], length: 2) as IndexPath)
-		}
+
+    if ascending {
+      forEach { index in
+        result.append(IndexPath(indexes: [section, index]))
+      }
+    } else {
+      reversed().forEach { index in
+        result.append(IndexPath(indexes: [section, index]))
+      }
+    }
 		return result
 	}
 }
@@ -40,7 +47,8 @@ public extension Array {
 	public subscript (indexes: IndexSet) -> [Element] {
 		var result: [Element] = []
 		result.reserveCapacity(indexes.count)
-		(indexes as NSIndexSet).enumerateRanges { nsRange, _ in
+
+    (indexes as NSIndexSet).enumerateRanges(options: []) { nsRange, _ in
 			result += self[nsRange.range]
 		}
 		return result
@@ -55,7 +63,9 @@ public extension Array {
 	public mutating func insertElements(_ newElements: [Element], atIndexes indexes: IndexSet) {
 		assert(indexes.count == newElements.count)
 		var i = 0
-		(indexes as NSIndexSet).enumerateRanges { range, _ in
+
+    
+		(indexes as NSIndexSet).enumerateRanges(options: []) { range, _ in
 			self.insert(contentsOf: newElements[i..<i+range.length], at: range.location)
 			i += range.length
 		}
