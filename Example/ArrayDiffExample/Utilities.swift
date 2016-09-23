@@ -1,34 +1,34 @@
 
 import UIKit
 
-extension NSIndexSet {
+extension IndexSet {
 	// Get a random index set in a range
-	static func randomIndexesInRange(range: Range<Int>, probability: Float) -> NSIndexSet {
-		let result = NSMutableIndexSet()
-		for i in range {
+	static func randomIndexesInRange(_ range: Range<Int>, probability: Float) -> IndexSet {
+		var result = IndexSet()
+		for i in range.lowerBound ..< range.upperBound {
 			if Bool.random(probability) {
-				result.addIndex(i)
+				result.insert(i)
 			}
 		}
-		return result
+		return result as IndexSet
 	}
 }
 
 extension Bool {
 	static var trueCount = 0
 	static var totalCount = 0
-	static func random(probability: Float) -> Bool {
+	static func random(_ probability: Float) -> Bool {
 		let result = arc4random_uniform(100) < UInt32(probability * 100)
 		if result {
-			trueCount++
+			trueCount += 1
 		}
-		totalCount++
+		totalCount += 1
 		return result
 	}
 }
 
 extension String {
 	static func random() -> String {
-		return NSUUID().UUIDString
+		return UUID().uuidString
 	}
 }
