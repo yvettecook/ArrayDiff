@@ -24,6 +24,8 @@ public extension IndexSet {
 	deletes in descending order and inserts in ascending order.
 	*/
 	public func indexPathsInSection(_ section: Int, ascending: Bool = true) -> [IndexPath] {
+        guard !self.isEmpty else { return [] }
+
 		var result: [IndexPath] = []
 		result.reserveCapacity(count)
 
